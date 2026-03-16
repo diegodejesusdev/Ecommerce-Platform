@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${product.name + ' - E-commerce'}">Product - E-commerce</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <header>
+        <nav>
+            <a th:href="@{/}" class="logo">E-commerce</a>
+            <a th:href="@{/products}">Products</a>
+            <span sec:authorize="isAuthenticated()">
+                <a th:href="@{/cart}">Cart</a>
+                <span class="user" sec:authentication="name"></span>
+                <form th:action="@{/logout}" method="post" class="inline">
+                    <button type="submit">Logout</button>
+                </form>
+            </span>
+            <span sec:authorize="!isAuthenticated()">
+                <a th:href="@{/login}">Login</a>
+            </span>
+        </nav>
+    </header>
+    <main>
+        <a th:href="@{/products}" class="back">← Back to products</a>
+
+        <article class="product-detail">
+            <div class="product-image" th:if="${product.imageUrl}">
+                <img th:src="${product.imageUrl}" th:alt="${product.name}"/>
+            </div>
+            <div class="product-image placeholder" th:unless="${product.imageUrl}">
+                <span>No image</span>
+            </div>
+            <div class="product-info">
+                <h1 th:text="${product.name}">Product name</h1>
+                <p class="price" th:text="${'$' + product.price}">$0.00</p>
+                <p class="stock" th:text="${product.stock > 0 ? 'In stock (' + product.stock + ')' : 'Out of stock'}">In stock</p>
+                <p class="description" th:if="${product.description}" th:text="${product.description}">Description</p>
+                <p th:if="${product.category != null}" class="category">
+                    Category: <span th:text="${product.category.name}">Category</span>
+                </p>
+                <p sec:authorize="isAuthenticated()" th:if="${product.stock > 0}">
+                    <a th:href="@{/cart}" class="btn">Add to cart</a> <span class="hint">(cart coming soon)</span>
+                </p>
+                <p sec:authorize="!isAuthenticated()" th:if="${product.stock > 0}">
+                    <a th:href="@{/login}" class="btn">Login to add to cart</a>
+                </p>
+            </div>
+        </article>
+    </main>
+    <footer>
+        <p>&copy; 2025 E-commerce Platform</p>
+    </footer>
+</body>
+</html>

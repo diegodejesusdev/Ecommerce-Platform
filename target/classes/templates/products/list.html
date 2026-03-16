@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Products - E-commerce</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <header>
+        <nav>
+            <a th:href="@{/}" class="logo">E-commerce</a>
+            <a th:href="@{/products}">Products</a>
+            <span sec:authorize="isAuthenticated()">
+                <a th:href="@{/cart}">Cart</a>
+                <span class="user" sec:authentication="name"></span>
+                <form th:action="@{/logout}" method="post" class="inline">
+                    <button type="submit">Logout</button>
+                </form>
+            </span>
+            <span sec:authorize="!isAuthenticated()">
+                <a th:href="@{/login}">Login</a>
+            </span>
+        </nav>
+    </header>
+    <main>
+        <h1>Products</h1>
+
+        <form th:action="@{/products}" method="get" class="filters">
+            <input type="text" name="search" th:value="${search}" placeholder="Search by name"/>
+            <select name="categoryId">
+                <option value="">All categories</option>
+                <option th:each="cat : ${categories}"
+                        th:value="${cat.id}"
+                        th:text="${cat.name}"
+                        th:selected="${selectedCategoryId != null && selectedCategoryId == cat.id}"/>
+            </select>
+            <button type="submit">Filter</button>
+        </form>
+
+        <div class="product-grid" th:if="${!productPage.isEmpty()}">
+            <article class="product-card" th:each="product : ${productPage.content}">
+                <a th:href="@{/products/{id}(id=${product.id})}" class="product-link">
+                    <div class="product-image" th:if="${product.imageUrl}">
+                        <img th:src="${product.imageUrl}" th:alt="${product.name}"/>
+                    </div>
+                    <div class="product-image placeholder" th:unless="${product.imageUrl}">
+                        <span>No image</span>
+                    </div>
+                    <h3 th:text="${product.name}">Product name</h3>
+                    <p class="price" th:text="${'$' + product.price}">$0.00</p>
+                    <p class="stock" th:text="${product.stock > 0 ? 'In stock' : 'Out of stock'}">In stock</p>
+                </a>
+            </article>
+        </div>
+
+        <p th:if="${productPage.isEmpty()}">No products found.</p>
+
+        <div class="pagination" th:if="${productPage.totalPages > 1}">
+            <a th:if="${productPage.hasPrevious()}"
+               th:href="@{/products(categoryId=${selectedCategoryId}, search=${search}, page=${productPage.number - 1})}">Previous</a>
+            <span th:text="${'Page ' + (productPage.number + 1) + ' of ' + productPage.totalPages}">Page 1 of 1</span>
+            <a th:if="${productPage.hasNext()}"
+               th:href="@{/products(categoryId=${selectedCategoryId}, search=${search}, page=${productPage.number + 1})}">Next</a>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 E-commerce Platform</p>
+    </footer>
+</body>
+</html>
