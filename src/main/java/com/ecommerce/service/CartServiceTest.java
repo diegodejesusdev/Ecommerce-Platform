@@ -161,9 +161,7 @@ class CartServiceTest {
         when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
         when(cartRepository.findByUser(user)).thenReturn(Optional.of(cart));
         when(cartItemRepository.findById(10L)).thenReturn(Optional.of(item));
-
-        doNothing().when(cartItemRepository).delete(item);
-
+        
         cartService.updateQuantity("john@example.com", 10L, 0);
 
         verify(cartRepository).save(cart);
