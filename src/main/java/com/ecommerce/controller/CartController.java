@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/cart")
@@ -34,18 +35,30 @@ public class CartController {
     @PostMapping("/add")
     public String addToCart(@AuthenticationPrincipal UserDetails userDetails,
                             @RequestParam Long productId,
-                            @RequestParam(defaultValue = "1") int quantity) {
+                            @RequestParam(defaultValue = "1") int quantity,
+                            RedirectAttributes redirectAttributes) {
         if (userDetails != null) {
-            cartService.addItemToCart(userDetails.getUsername(), productId, quantity);
+            try {
+                cartService.addItemToCart(userDetails.getUsername(), productId, quantity);
+                redirectAttributes.addFlashAttribute("successMessage", "Product added to cart!");
+            } catch (RuntimeException e) {
+                redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            }
         }
         return "redirect:/cart";
     }
 
     @PostMapping("/remove")
     public String removeFromCart(@AuthenticationPrincipal UserDetails userDetails,
-                                 @RequestParam Long itemId) {
+                                 @RequestParam Long itemId,
+                                 RedirectAttributes redirectAttributes) {
         if (userDetails != null) {
-            cartService.removeItemFromCart(userDetails.getUsername(), itemId);
+            try {
+                cartService.removeItemFromCart(userDetails.getUsername(), itemId);
+                redirectAttributes.addFlashAttribute("successMessage", "Item removed from cart.");
+            } catch (RuntimeException e) {
+                redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            }
         }
         return "redirect:/cart";
     }
@@ -53,9 +66,15 @@ public class CartController {
     @PostMapping("/update")
     public String updateQuantity(@AuthenticationPrincipal UserDetails userDetails,
                                  @RequestParam Long itemId,
-                                 @RequestParam int quantity) {
+                                 @RequestParam int quantity,
+                                 RedirectAttributes redirectAttributes) {
         if (userDetails != null) {
-            cartService.updateQuantity(userDetails.getUsername(), itemId, quantity);
+            try {
+                cartService.updateQuantity(userDetails.getUsername(), itemId, quantity);
+                redirectAttributes.addFlashAttribute("successMessage", "Cart updated.");
+            } catch (RuntimeException e) {
+                redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            }
         }
         return "redirect:/cart";
     }

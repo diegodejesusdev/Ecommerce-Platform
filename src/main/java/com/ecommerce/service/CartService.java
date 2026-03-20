@@ -58,15 +58,27 @@ public class CartService {
 
     @Transactional
     public void addItemToCart(String email, Long productId, int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero");
+        }
+        
         Cart cart = getOrCreateCartForUser(email);
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
+
+        if (product.getStock() < quantity) {
+            throw new RuntimeException("Insufficient stock for product: " + product.getName() + " (Available: " + product.getStock() + ")");
+        }
 
         Optional<CartItem> existingItem = cartItemRepository.findByCartAndProduct(cart, product);
 
         if (existingItem.isPresent()) {
             CartItem item = existingItem.get();
-            item.setQuantity(item.getQuantity() + quantity);
+            int newQuantity = item.getQuantity() + quantity;
+            if (product.getStock() < newQuantity) {
+                throw new RuntimeException("Insufficient stock for product: " + product.getName() + " (Requested total: " + newQuantity + ", Available: " + product.getStock() + ")");
+            }
+            item.setQuantity(newQuantity);
             cartItemRepository.save(item);
         } else {
             CartItem newItem = new CartItem(product, quantity);
@@ -89,7 +101,11 @@ public class CartService {
 
     @Transactional
     public void updateQuantity(String email, Long itemId, int quantity) {
-        if (quantity <= 0) {
+        if (quantity < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
+        
+        if (quantity == 0) {
             removeItemFromCart(email, itemId);
             return;
         }
@@ -99,8 +115,19 @@ public class CartService {
                 .orElseThrow(() -> new RuntimeException("Cart item not found: " + itemId));
         
         if (item.getCart().getId().equals(cart.getId())) {
+            Product product = item.getProduct();
+            if (product.getStock() < quantity) {
+                throw new RuntimeException("Insufficient stock for product: " + product.getName() + " (Available: " + product.getStock() + ")");
+            }
             item.setQuantity(quantity);
             cartItemRepository.save(item);
         }
+    }
+
+    @Transactional
+    public void clearCart(String email) {
+        Cart cart = getOrCreateCartForUser(email);
+        cart.getItems().clear();
+        cartRepository.save(cart);
     }
 }

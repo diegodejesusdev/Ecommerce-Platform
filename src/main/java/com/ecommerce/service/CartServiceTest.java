@@ -55,6 +55,7 @@ class CartServiceTest {
         product.setId(1L);
         product.setName("Test Product");
         product.setPrice(new BigDecimal("10.00"));
+        product.setStock(10);
 
         cart = new Cart(user);
         cart.setId(100L);
@@ -181,5 +182,40 @@ class CartServiceTest {
 
         assertEquals(5, item.getQuantity());
         verify(cartItemRepository).save(item);
+    }
+
+    @Test
+    void addItemToCart_shouldThrowExceptionWhenStockInsufficient() {
+        product.setStock(1);
+        when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
+        when(cartRepository.findByUser(user)).thenReturn(Optional.of(cart));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+        assertThrows(RuntimeException.class, () -> cartService.addItemToCart("john@example.com", 1L, 2));
+    }
+
+    @Test
+    void addItemToCart_shouldThrowExceptionWhenTotalStockInsufficient() {
+        CartItem existingItem = new CartItem(product, 8);
+        existingItem.setCart(cart);
+
+        when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
+        when(cartRepository.findByUser(user)).thenReturn(Optional.of(cart));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(cartItemRepository.findByCartAndProduct(cart, product)).thenReturn(Optional.of(existingItem));
+
+        assertThrows(RuntimeException.class, () -> cartService.addItemToCart("john@example.com", 1L, 5));
+    }
+
+    @Test
+    void clearCart_shouldEmptyItems() {
+        cart.getItems().add(new CartItem(product, 1));
+        when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
+        when(cartRepository.findByUser(user)).thenReturn(Optional.of(cart));
+
+        cartService.clearCart("john@example.com");
+
+        assertTrue(cart.getItems().isEmpty());
+        verify(cartRepository).save(cart);
     }
 }
