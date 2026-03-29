@@ -78,4 +78,13 @@ public class CartController {
         }
         return "redirect:/cart";
     }
+
+    @GetMapping("/summary")
+    public String cartSummary(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        if (userDetails != null) {
+            Cart cart = cartService.getOrCreateCartForUser(userDetails.getUsername());
+            model.addAttribute("cart", cart);
+        }
+        return "fragments/cart-summary :: cartSummary";
+    }
 }

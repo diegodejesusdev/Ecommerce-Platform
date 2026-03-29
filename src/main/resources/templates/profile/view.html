@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Profile - E-commerce</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <header>
+        <nav>
+            <a th:href="@{/}" class="logo">E-commerce</a>
+            <a th:href="@{/products}">Products</a>
+            <a th:href="@{/cart}">Cart</a>
+            <a th:href="@{/orders/my-orders}">My Orders</a>
+            <span class="user" sec:authentication="name"></span>
+            <form th:action="@{/logout}" method="post" class="inline">
+                <button type="submit">Logout</button>
+            </form>
+        </nav>
+    </header>
+    <main>
+        <h1>My Profile</h1>
+
+        <div th:if="${successMessage}" class="alert alert-success">
+            <p th:text="${successMessage}"></p>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger">
+            <p th:text="${errorMessage}"></p>
+        </div>
+
+        <div class="profile-container">
+            <div class="profile-card">
+                <h2>Profile Information</h2>
+                <div class="profile-info">
+                    <div class="info-row">
+                        <label>Full Name:</label>
+                        <span th:text="${user.fullName}">John Doe</span>
+                    </div>
+                    <div class="info-row">
+                        <label>Email:</label>
+                        <span th:text="${user.email}">john@example.com</span>
+                    </div>
+                    <div class="info-row">
+                        <label>Member Since:</label>
+                        <span th:text="${user.createdAt}">2025-01-01</span>
+                    </div>
+                    <div class="info-row">
+                        <label>Roles:</label>
+                        <span>
+                            <span th:each="role : ${user.roles}"
+                                  th:class="'role-badge'"
+                                  th:text="${role.name}">ROLE_USER</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <a th:href="@{/profile/edit}" class="btn">Edit Profile</a>
+                </div>
+            </div>
+
+            <div class="profile-stats">
+                <h2>Quick Stats</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-value" th:text="${#lists.size(user.orders)}">0</span>
+                        <span class="stat-label">Orders</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 E-commerce Platform</p>
+    </footer>
+</body>
+</html>

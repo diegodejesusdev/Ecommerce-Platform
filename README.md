@@ -4,9 +4,12 @@ A robust, full-stack E-commerce solution built with the Spring Boot 3 ecosystem.
 
 ## 🛡️ Key Features
 - **Secure Authentication**: Role-Based Access Control (RBAC) using Spring Security.
-- **Product Catalog**: Dynamic browsing with categories, product details, and stock management.
-- **Shopping Cart**: Real-time cart management for logged-in users.
-- **Order Management**: Checkout process and order tracking (ready for extension).
+- **Product Catalog**: Dynamic browsing with categories, product details, stock management, search, and pagination.
+- **Shopping Cart**: Real-time cart management with stock validation and flash messages.
+- **Order Management**: Complete checkout flow with order creation, status tracking, and admin management.
+- **Order History**: Users can view their past orders with detailed status information.
+- **User Profile**: Profile management with password change functionality.
+- **Payment Gateway Abstraction**: Multi-provider payment support (Stripe, PayPal, Cash on Delivery).
 - **Responsive UI**: Modern interface built with Thymeleaf, HTML5, and CSS3.
 - **Auto-Initialization**: Automatic seeding of sample data (admin user and products) on the first run.
 
@@ -107,7 +110,9 @@ src/main/resources/
 - Currently, no LICENSE file exists in the repository.
 
 ## 🏗️ TODOs & Roadmap
-- [ ] Move tests from `src/main/java` to `src/test/java`.
-- [ ] Implement full order processing logic.
-- [ ] Add support for multiple payment gateways.
-- [ ] Add a formal `LICENSE` file.
+- [ ] Add integration tests for order and payment flows.
+- [ ] Implement email notifications for order status changes.
+- [ ] Add product reviews and ratings.
+- [ ] Implement wishlist functionality.
+- [ ] Add admin dashboard for analytics.
+- [ ] Integrate real Stripe and PayPal SDKs for production use.

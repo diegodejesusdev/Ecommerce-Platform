@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Checkout - E-commerce</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <header>
+        <nav>
+            <a th:href="@{/}" class="logo">E-commerce</a>
+            <a th:href="@{/products}">Products</a>
+            <a th:href="@{/cart}">Cart</a>
+            <span class="user" sec:authentication="name"></span>
+            <form th:action="@{/logout}" method="post" class="inline">
+                <button type="submit">Logout</button>
+            </form>
+        </nav>
+    </header>
+    <main>
+        <h1>Checkout</h1>
+
+        <div th:if="${errorMessage}" class="alert alert-danger">
+            <p th:text="${errorMessage}"></p>
+        </div>
+
+        <div class="checkout-container">
+            <div class="checkout-form">
+                <h2>Shipping Information</h2>
+                <form th:action="@{/orders/checkout}" method="post">
+                    <div class="form-group">
+                        <label for="shippingAddress">Shipping Address</label>
+                        <textarea id="shippingAddress" name="shippingAddress" rows="4" required
+                                  placeholder="Enter your full shipping address"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Method</label>
+                        <select id="paymentMethod" name="paymentMethod" required>
+                            <option th:each="provider : ${paymentProviders}"
+                                    th:value="${provider.name()}"
+                                    th:text="${provider.displayName}">Stripe</option>
+                        </select>
+                        <p class="payment-info">
+                            <small th:if="${paymentService != null}">
+                                <span th:if="${paymentService.isProviderConfigured(T(com.ecommerce.payment.PaymentProvider).STRIPE)}">✓</span>
+                                <span th:unless="${paymentService.isProviderConfigured(T(com.ecommerce.payment.PaymentProvider).STRIPE)}">⚠</span>
+                                Stripe
+                            </small>
+                            <small>
+                                <span>✓</span> Cash on Delivery (Always available)
+                            </small>
+                        </p>
+                    </div>
+
+                    <div class="form-actions">
+                        <a th:href="@{/cart}" class="btn-secondary">Back to Cart</a>
+                        <button type="submit" class="btn">Place Order</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="checkout-summary">
+                <h2>Order Summary</h2>
+                <div id="order-summary-content">
+                    <p>Loading order summary...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 E-commerce Platform</p>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/cart/summary')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('order-summary-content').innerHTML = html;
+                })
+                .catch(error => {
+                    document.getElementById('order-summary-content').innerHTML =
+                        '<p class="error">Unable to load order summary.</p>';
+                });
+        });
+    </script>
+</body>
+</html>

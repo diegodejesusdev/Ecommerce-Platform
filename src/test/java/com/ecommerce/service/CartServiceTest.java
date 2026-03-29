@@ -18,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -162,7 +161,7 @@ class CartServiceTest {
         when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
         when(cartRepository.findByUser(user)).thenReturn(Optional.of(cart));
         when(cartItemRepository.findById(10L)).thenReturn(Optional.of(item));
-        
+
         cartService.updateQuantity("john@example.com", 10L, 0);
 
         verify(cartRepository).save(cart);

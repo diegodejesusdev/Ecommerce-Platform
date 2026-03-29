@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>All Orders - E-commerce</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <header>
+        <nav>
+            <a th:href="@{/}" class="logo">E-commerce</a>
+            <a th:href="@{/products}">Products</a>
+            <a th:href="@{/cart}">Cart</a>
+            <span class="user" sec:authentication="name"></span>
+            <form th:action="@{/logout}" method="post" class="inline">
+                <button type="submit">Logout</button>
+            </form>
+        </nav>
+    </header>
+    <main>
+        <h1>All Orders</h1>
+
+        <div th:if="${orders == null or orders.isEmpty()}">
+            <p>No orders found.</p>
+            <a th:href="@{/products}" class="btn">Browse Products</a>
+        </div>
+
+        <div th:if="${orders != null and !orders.isEmpty()}">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Order Number</th>
+                        <th>Customer</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="order : ${orders}">
+                        <td th:text="${order.orderNumber}">ORD-XXXX</td>
+                        <td th:text="${order.user.fullName}">Customer Name</td>
+                        <td th:text="${'$' + order.total}">$0.00</td>
+                        <td>
+                            <span th:class="'status-badge status-' + ${#strings.toLowerCase(order.status)}"
+                                  th:text="${order.status}">PENDING</span>
+                        </td>
+                        <td th:text="${order.createdAt}">2025-01-01</td>
+                        <td>
+                            <a th:href="@{/orders/{id}(id=${order.id})}" class="btn-sm">View</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination-actions">
+            <a th:href="@{/}" class="btn-secondary">Back to Home</a>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 E-commerce Platform</p>
+    </footer>
+</body>
+</html>

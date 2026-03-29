@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${'Order ' + order.orderNumber}">Order Detail</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <header>
+        <nav>
+            <a th:href="@{/}" class="logo">E-commerce</a>
+            <a th:href="@{/products}">Products</a>
+            <a th:href="@{/cart}">Cart</a>
+            <span class="user" sec:authentication="name"></span>
+            <form th:action="@{/logout}" method="post" class="inline">
+                <button type="submit">Logout</button>
+            </form>
+        </nav>
+    </header>
+    <main>
+        <h1>Order: <span th:text="${order.orderNumber}">ORD-XXXX</span></h1>
+
+        <div th:if="${successMessage}" class="alert alert-success">
+            <p th:text="${successMessage}"></p>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger">
+            <p th:text="${errorMessage}"></p>
+        </div>
+
+        <div class="order-detail">
+            <div class="order-info">
+                <h2>Order Information</h2>
+                <table class="info-table">
+                    <tr>
+                        <th>Order Number:</th>
+                        <td th:text="${order.orderNumber}">ORD-XXXX</td>
+                    </tr>
+                    <tr>
+                        <th>Status:</th>
+                        <td>
+                            <span th:class="'status-badge status-' + ${#strings.toLowerCase(order.status)}"
+                                  th:text="${order.status}">PENDING</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Total:</th>
+                        <td th:text="${'$' + order.total}">$0.00</td>
+                    </tr>
+                    <tr>
+                        <th>Shipping Address:</th>
+                        <td th:text="${order.shippingAddress}">Address</td>
+                    </tr>
+                    <tr>
+                        <th>Order Date:</th>
+                        <td th:text="${order.createdAt}">2025-01-01</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="order-items">
+                <h2>Order Items</h2>
+                <table class="order-items-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${order.items}">
+                            <td th:text="${item.product.name}">Product Name</td>
+                            <td th:text="${'$' + item.priceAtPurchase}">$0.00</td>
+                            <td th:text="${item.quantity}">1</td>
+                            <td th:text="${'$' + (item.priceAtPurchase * item.quantity)}">$0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="order-actions" sec:authorize="hasRole('ADMIN')">
+                <h2>Admin Actions</h2>
+                <div class="action-buttons">
+                    <form th:if="${order.status == 'PENDING'}" th:action="@{/orders/{id}/confirm(id=${order.id})}" method="post" class="inline">
+                        <button type="submit" class="btn">Confirm Order</button>
+                    </form>
+                    <form th:if="${order.status == 'PENDING' or order.status == 'CONFIRMED'}" th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post" class="inline">
+                        <button type="submit" class="btn-danger">Cancel Order</button>
+                    </form>
+                    <form th:if="${order.status == 'CONFIRMED'}" th:action="@{/orders/{id}/ship(id=${order.id})}" method="post" class="inline">
+                        <button type="submit" class="btn">Ship Order</button>
+                    </form>
+                    <form th:if="${order.status == 'SHIPPED'}" th:action="@{/orders/{id}/deliver(id=${order.id})}" method="post" class="inline">
+                        <button type="submit" class="btn">Mark as Delivered</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-actions">
+            <a th:href="@{/orders/list}" class="btn-secondary">Back to Orders</a>
+            <a th:href="@{/products}" class="btn">Continue Shopping</a>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 E-commerce Platform</p>
+    </footer>
+</body>
+</html>

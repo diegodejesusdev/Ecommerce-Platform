@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="cartSummary" class="cart-summary-content">
+        <div th:if="${cart == null or cart.items.isEmpty()}">
+            <p>Your cart is empty.</p>
+        </div>
+        <div th:if="${cart != null and !cart.items.isEmpty()}">
+            <table class="summary-table">
+                <tbody>
+                    <tr th:each="item : ${cart.items}">
+                        <td th:text="${item.product.name}">Product</td>
+                        <td class="qty" th:text="'x' + ${item.quantity}">x1</td>
+                        <td class="price" th:text="${'$' + (item.product.price * item.quantity)}">$0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="summary-total">
+                <strong>Total: </strong>
+                <span th:text="${'$' + #aggregates.sum(cart.items.![product.price * quantity])}">$0.00</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

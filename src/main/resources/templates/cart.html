@@ -12,11 +12,18 @@
         <nav>
             <a th:href="@{/}" class="logo">E-commerce</a>
             <a th:href="@{/products}">Products</a>
-            <a th:href="@{/cart}">Cart</a>
-            <span class="user" sec:authentication="name"></span>
-            <form th:action="@{/logout}" method="post" class="inline">
-                <button type="submit">Logout</button>
-            </form>
+            <span sec:authorize="isAuthenticated()">
+                <a th:href="@{/cart}">Cart</a>
+                <a th:href="@{/orders/my-orders}">My Orders</a>
+                <a th:href="@{/profile}">Profile</a>
+                <span class="user" sec:authentication="name"></span>
+                <form th:action="@{/logout}" method="post" class="inline">
+                    <button type="submit">Logout</button>
+                </form>
+            </span>
+            <span sec:authorize="!isAuthenticated()">
+                <a th:href="@{/login}">Login</a>
+            </span>
         </nav>
     </header>
     <main>
