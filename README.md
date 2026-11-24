@@ -74,8 +74,9 @@ cd Ecommerce-Platform
 
 # La base ecommerce_db se crea sola (createDatabaseIfNotExist=true).
 # Define tus credenciales de MySQL:
-export SPRING_DATASOURCE_USERNAME=root
-export SPRING_DATASOURCE_PASSWORD=tu_password
+export DB_USERNAME=root
+export DB_PASSWORD=tu_password
+# Opcional: DB_URL y SERVER_PORT
 
 mvn spring-boot:run
 ```
