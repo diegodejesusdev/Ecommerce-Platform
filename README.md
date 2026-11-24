@@ -1,118 +1,99 @@
-# E-commerce Platform
+# 🛒 E-commerce Platform
 
-A robust, full-stack E-commerce solution built with the Spring Boot 3 ecosystem. This application provides a platform for browsing products, managing a shopping cart, and secure user authentication.
+Tienda en línea monolítica construida con **Java 17 + Spring Boot 3.2** siguiendo el patrón **MVC**, con vistas renderizadas en servidor (**Thymeleaf**) y persistencia en **MySQL**. Cubre el flujo completo de compra: catálogo, carrito, checkout con pago, y ciclo de vida del pedido.
 
-## 🛡️ Key Features
-- **Secure Authentication**: Role-Based Access Control (RBAC) using Spring Security.
-- **Product Catalog**: Dynamic browsing with categories, product details, stock management, search, and pagination.
-- **Shopping Cart**: Real-time cart management with stock validation and flash messages.
-- **Order Management**: Complete checkout flow with order creation, status tracking, and admin management.
-- **Order History**: Users can view their past orders with detailed status information.
-- **User Profile**: Profile management with password change functionality.
-- **Payment Gateway Abstraction**: Multi-provider payment support (Stripe, PayPal, Cash on Delivery).
-- **Responsive UI**: Modern interface built with Thymeleaf, HTML5, and CSS3.
-- **Auto-Initialization**: Automatic seeding of sample data (admin user and products) on the first run.
+![Java](https://img.shields.io/badge/Java_17-ED8B00?style=flat-square&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot_3.2-6DB33F?style=flat-square&logo=springboot&logoColor=white)
+![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=flat-square&logo=springsecurity&logoColor=white)
+![Thymeleaf](https://img.shields.io/badge/Thymeleaf-005F0F?style=flat-square&logo=thymeleaf&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
 
-## 🛠️ Tech Stack
-- **Language**: Java 17
-- **Framework**: Spring Boot 3.2.5
-- **Data Access**: Spring Data JPA (Hibernate)
-- **Security**: Spring Security 6 with BCrypt password encoding
-- **Database**: MySQL 8.0+
-- **Template Engine**: Thymeleaf
-- **Frontend**: HTML5, CSS3
-- **Package Manager / Build Tool**: Maven 3.8+
+## ¿Qué hace?
 
-## 🚀 Getting Started
+**Catálogo**
+- Lista de productos paginada y ordenada por nombre, con **búsqueda por nombre** y **filtro por categoría**.
+- Página de detalle de cada producto con su stock disponible.
 
-### Prerequisites
-- **JDK 17** or higher.
-- **MySQL Server** 8.0+.
-- **Maven** 3.8+ (optional if using the included `./mvnw`).
+**Carrito**
+- Agregar, actualizar cantidades y quitar productos; el carrito se guarda en base de datos por usuario.
+- **Valida el stock** antes de agregar o aumentar cantidades y muestra mensajes flash de éxito o error.
 
-### Installation & Setup
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/your-username/ecommerce-platform.git
-   cd "E-commerce Platform"
-   ```
+**Checkout y pagos**
+- Convierte el carrito en un pedido con dirección de envío y **descuenta el stock** de cada producto.
+- Procesa el pago mediante una **abstracción de pasarelas** (`PaymentGateway`): Stripe, PayPal y contra entrega. Stripe y PayPal son **simulaciones** (generan un ID de transacción); la interfaz está lista para conectar los SDK reales.
 
-2. **Database Configuration**:
-   - The application is configured to create the database automatically if it does not exist (`createDatabaseIfNotExist=true`).
-   - Ensure your MySQL server is running.
-   - Update `src/main/resources/application.properties` with your MySQL credentials:
-     ```properties
-     spring.datasource.username=YOUR_USERNAME
-     spring.datasource.password=YOUR_PASSWORD
-     ```
+**Pedidos**
+- Máquina de estados: `PENDING → CONFIRMED → SHIPPED → DELIVERED`, o `CANCELLED` desde `PENDING`/`CONFIRMED`. Cada transición valida el estado actual.
+- Al **cancelar**, el stock de los productos se **restaura**.
+- "Mis pedidos" con historial paginado y vista de detalle.
 
-3. **Build the project**:
-   ```bash
-   mvn clean install
-   ```
+**Usuarios y seguridad**
+- Login con formulario, contraseñas cifradas con **BCrypt** y roles `ROLE_USER` / `ROLE_ADMIN` (Spring Security 6).
+- El catálogo es público; carrito, checkout y pedidos requieren sesión.
+- Perfil de usuario con **cambio de contraseña** (verifica la contraseña actual).
 
-4. **Run the application**:
-   - **Using Maven**:
-     ```bash
-     mvn spring-boot:run
-     ```
-   - **Using JAR**:
-     ```bash
-     java -jar target/ecommerce-platform-1.0.0-SNAPSHOT.jar
-     ```
+**Datos de ejemplo**
+- Al primer arranque se crean un usuario administrador y productos de muestra (`DataInitializerService`).
 
-5. **Access the platform**:
-   - URL: `http://localhost:8080`
-   - **Default Admin Credentials**:
-     - Email: `admin@example.com`
-     - Password: `admin123`
+## Arquitectura
 
-## 📜 Scripts & Commands
-- `mvn clean install`: Cleans, builds the project, and runs tests.
-- `mvn spring-boot:run`: Launches the application using the Spring Boot Maven plugin.
-- `mvn test`: Executes unit and integration tests.
-- `mvn package`: Packages the application into a runnable JAR in the `target/` directory.
-
-## ⚙️ Environment Variables
-The application primarily uses `src/main/resources/application.properties`. You can override these using environment variables:
-- `SPRING_DATASOURCE_URL`: JDBC URL for MySQL (Default: `jdbc:mysql://localhost:3306/ecommerce_db`)
-- `SPRING_DATASOURCE_USERNAME`: MySQL username (Default: `root`)
-- `SPRING_DATASOURCE_PASSWORD`: MySQL password (Default: `diego123`)
-- `SERVER_PORT`: Port on which the application runs (Default: `8080`)
-
-## 🧪 Testing
-The project includes unit tests for core services. 
-Note: Currently, some tests are located in `src/main/java` (e.g., `CartServiceTest.java`) instead of the standard `src/test/java` directory.
-
-To run all tests:
-```bash
-mvn test
 ```
-
-## 📁 Project Structure
-```text
 src/main/java/com/ecommerce/
-├── EcommerceApplication.java # Application Entry Point
-├── config/                  # Security, PasswordEncoder, and Data Initialization configs
-├── controller/              # Spring MVC Controllers (Web layer)
-├── entity/                  # JPA Entities (Database models)
-├── repository/              # Spring Data JPA Repositories (Data layer)
-└── service/                 # Business Logic and Services
+├── config/       SecurityConfig, PasswordEncoderConfig, DataInitializer
+├── controller/   Home, Product, Cart, Order, Profile, Login (Spring MVC)
+├── entity/       User, Role, Product, Category, Cart, CartItem, Order, OrderItem
+├── payment/      PaymentGateway + Stripe / PayPal / CashOnDelivery (patrón Strategy)
+├── repository/   Repositorios Spring Data JPA
+└── service/      CartService, OrderService, PaymentService, CustomUserDetailsService
 src/main/resources/
-├── static/                  # Static assets (CSS, JS, Images)
-├── templates/               # Thymeleaf HTML templates
-├── application.properties    # Main configuration file
-└── data.sql                 # SQL script for data initialization (if used)
+├── templates/    Vistas Thymeleaf (catálogo, carrito, checkout, pedidos, perfil)
+├── static/css/   Estilos
+└── data.sql      Roles y usuario inicial
 ```
 
-## 📄 License
-- TODO: Add license information (e.g., MIT, Apache 2.0). 
-- Currently, no LICENSE file exists in the repository.
+## Rutas principales
 
-## 🏗️ TODOs & Roadmap
-- [ ] Add integration tests for order and payment flows.
-- [ ] Implement email notifications for order status changes.
-- [ ] Add product reviews and ratings.
-- [ ] Implement wishlist functionality.
-- [ ] Add admin dashboard for analytics.
-- [ ] Integrate real Stripe and PayPal SDKs for production use.
+| Ruta | Descripción | Acceso |
+|---|---|---|
+| `/`, `/products`, `/products/{id}` | Inicio, catálogo y detalle | Público |
+| `/login` | Inicio de sesión | Público |
+| `/cart`, `/cart/add`, `/cart/update`, `/cart/remove` | Carrito | Autenticado |
+| `/orders/checkout` | Formulario y envío del pedido con pago | Autenticado |
+| `/orders/my-orders`, `/orders/{id}` | Historial y detalle | Autenticado |
+| `/orders/list`, `/orders/{id}/confirm\|ship\|deliver\|cancel` | Gestión de pedidos | Autenticado |
+| `/profile`, `/profile/edit`, `/profile/change-password` | Perfil | Autenticado |
+
+## Cómo ejecutarlo
+
+Requisitos: JDK 17+, Maven 3.8+ y MySQL 8 en ejecución.
+
+```bash
+git clone https://github.com/diegodejesusdev/Ecommerce-Platform.git
+cd Ecommerce-Platform
+
+# La base ecommerce_db se crea sola (createDatabaseIfNotExist=true).
+# Define tus credenciales de MySQL:
+export SPRING_DATASOURCE_USERNAME=root
+export SPRING_DATASOURCE_PASSWORD=tu_password
+
+mvn spring-boot:run
+```
+
+Abre `http://localhost:8080`. El usuario administrador de ejemplo se muestra en el log del primer arranque.
+
+```bash
+mvn test      # pruebas unitarias (CartServiceTest)
+mvn package   # genera el JAR en target/
+```
+
+## Pendientes conocidos
+
+- No hay página de registro: los usuarios se crean con los datos iniciales.
+- Las acciones de gestión de pedidos (confirmar, enviar, entregar, listar todos) solo exigen sesión iniciada; falta restringirlas al rol `ADMIN`.
+- Stripe y PayPal están simulados.
+- Pruebas solo para `CartService`; faltan pruebas de integración de pedidos y pagos.
+
+## Licencia
+
+MIT
